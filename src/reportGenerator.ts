@@ -1,3 +1,4 @@
+import { overlapMinutes } from './availability';
 import type { StorageProvider } from './storage/storageProvider';
 import type { Room } from './types';
 
@@ -36,9 +37,7 @@ export class ReportGenerator {
 
     let bookedMinutes = 0;
     for (const booking of bookings) {
-      const from = booking.start < windowStart ? windowStart : booking.start;
-      const to = booking.end > windowEnd ? windowEnd : booking.end;
-      bookedMinutes += to - from;
+      bookedMinutes += overlapMinutes(booking.start, booking.end, windowStart, windowEnd);
     }
 
     const windowMinutes = windowEnd - windowStart;
@@ -88,6 +87,6 @@ export class ReportGenerator {
     windowStart: number,
     windowEnd: number,
   ): boolean {
-    return Math.max(bookingStart, windowStart) < Math.min(bookingEnd, windowEnd);
+    return overlapMinutes(bookingStart, bookingEnd, windowStart, windowEnd) > 0;
   }
 }

@@ -45,15 +45,26 @@ export function findFreeSlots(
   return free;
 }
 
+/**
+ * Minutes of one interval that fall inside the window, zero when the two do not
+ * meet. The single place a booking is measured against a window.
+ */
+export function overlapMinutes(
+  intervalStart: number,
+  intervalEnd: number,
+  windowStart: number,
+  windowEnd: number,
+): number {
+  const from = Math.max(intervalStart, windowStart);
+  const to = Math.min(intervalEnd, windowEnd);
+  return to > from ? to - from : 0;
+}
+
 /** Minutes still open inside the window once every booking is subtracted. */
 export function freeMinutes(bookings: Booking[], windowStart: number, windowEnd: number): number {
   let booked = 0;
   for (const booking of bookings) {
-    const from = Math.max(booking.start, windowStart);
-    const to = Math.min(booking.end, windowEnd);
-    if (to > from) {
-      booked += to - from;
-    }
+    booked += overlapMinutes(booking.start, booking.end, windowStart, windowEnd);
   }
   return Math.max(0, windowEnd - windowStart - booked);
 }
